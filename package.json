@@ -1,0 +1,23 @@
+{
+    "name": "usagi-bot",
+    "version": "0.0.0",
+    "description": "UsagiBot",
+    "main": "app.js",
+    "author": {
+        "name": ""
+    },
+    "scripts": {
+        "start": "electron ."
+    },
+    "dependencies": {
+        "file-type": "^16.2.0",
+        "fs": "0.0.1-security",
+        "node-fetch": "^2.6.1",
+        "sharp": "^0.27.1",
+        "ws": "^7.4.2",
+        "zlib": "^1.0.5"
+    },
+    "devDependencies": {
+        "electron": "^11.2.1"
+    }
+}

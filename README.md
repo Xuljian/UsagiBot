@@ -1,1 +1,2 @@
 # UsagiBot
+Bot for discord

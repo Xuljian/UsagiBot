@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self';img-src 'self' data:">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>UsagiBot</title>
+    <link rel="stylesheet" href="../styles/index.css"></style>
+</head>
+<body>
+    <div message-log>
+
+    </div>
+    <div admin>
+        <div>
+            <div class="admin-info">
+                <div>
+                    <label>Message Id</label>
+                    <div message-id>-</div>
+                </div>
+                <div>
+                    <label>User Id</label>
+                    <div user-id>-</div>
+                    <div>-</div>
+                </div>
+                <div>
+                    <label>Guild Id</label>
+                    <div guild-id>-</div>
+                    <div>-</div>
+                </div>
+                <div>
+                    <label>Channel Id</label>
+                    <div channel-id>-</div>
+                    <div>-</div>
+                </div>
+            </div>
+            <div class="admin-input">
+                <div>
+                    <select id="command">
+                        <option value="dm" selected>DM</options>
+                        <option value="dmId">DM BY USER ID</options>
+                        <option value="ignore">IGNORE</options>
+                        <option value="unignore">UNIGNORE</options>
+                        <option value="registerEmojiChannel">REGISTER EMOJI CHANNEL</options>
+                        <option value="unregisterEmojiChannel">UNREGISTER EMOJI CHANNEL</options>
+                    </select>
+                </div>
+                <div class="special">
+                    <textarea id="input-value" rows="3"></textarea>
+                </div>
+                <div>
+                    <button type="button" id="execute">Execute</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- You can also require other files to run in this process -->
+    <script src="../renderer.js"></script>
+</body>
+</html>

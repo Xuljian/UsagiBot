@@ -1,0 +1,151 @@
+div[message-log] {
+    background-color: #444444;
+    border-bottom: 5px;
+    border-color: black;
+    overflow: auto;
+}
+
+div[message-container] {
+    padding: 10px;
+    display: flex;
+}
+
+div[message-container-me] {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-end;
+}
+
+div[message] {
+    box-shadow: 2px 2px 3px white;
+    border: 1px #aaaaaa;
+    background-color: #cfcfcf;
+    color: black;
+    padding: 20px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+div[admin] {
+    background-color: #555555;
+}
+
+div[admin] > div {
+    padding: 15px;
+}
+
+body {
+    margin: 0;
+    font-family: cursive;
+}
+
+img {
+    max-width: 500px;
+    max-height: 500px;
+}
+
+.important {
+    color: red;
+}
+
+.message-right {
+    text-align: right;
+}
+
+.message-left {
+    text-align: left;
+}
+
+.message-section {
+    padding: 4px 0px;
+    word-break: break-all;
+}
+
+.admin-info {
+    font-size: 15px;
+    display: flex;
+    margin-bottom: 15px;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.admin-info > div {
+    color: white;
+    flex: auto;
+}
+
+.admin-info > div > label {
+    font-size: 12.5px;
+}
+
+.id {
+    font-style: italic;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.tiny {
+    font-size: 10px;
+    font-style: italic;
+}
+
+.admin-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.admin-input > div {
+    margin-right: 5px;
+}
+
+.admin-input > div:last-child {
+    margin-right: 0px;
+}
+
+.special {
+    width: 50%;
+}
+
+/* Bootstrap */
+select {
+    display: block;
+    padding: .375rem 1.75rem .375rem .75rem;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+textarea {
+    resize: none;
+    display: block;
+    width: 95.5%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+button {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    border-radius: .25rem;
+}
