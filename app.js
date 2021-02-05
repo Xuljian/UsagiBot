@@ -139,4 +139,35 @@ ipcMain.on('unregisterEmojiChannel', (event, data) => {
     })
 })
 
+ipcMain.on('registerGuildArchive', (event, data) => {
+    realTimeRepository.archiveChannel[data.guildId] = data.channelId;
+})
+
+ipcMain.on('unregisterGuildArchive', (event, data) => {
+    delete realTimeRepository.archiveChannel[data.guildId];
+})
+
+ipcMain.on('registerArchiveListener', (event, data) => {
+    let archiveListenerChannel = realTimeRepository.archiveListenChannel[data.guildId];
+    if (archiveListenerChannel == null) {
+        realTimeRepository.archiveListenChannel[data.guildId] = [data.channelId];
+    } else {
+        if (archiveListenerChannel.indexOf(data.channelId) < 0) {
+            archiveListenerChannel.push(data.channelId);
+        }
+    }
+})
+
+ipcMain.on('unregisterArchiveListener', (event, data) => {
+    let archiveListenerChannel = realTimeRepository.archiveListenChannel[data.guildId];
+    if (archiveListenerChannel == null) {
+        return;
+    } else {
+        let foundIndex = archiveListenerChannel.indexOf(data.channelId);
+        if (foundIndex > -1) {
+            archiveListenerChannel.splice(foundIndex, 1);
+        }
+    }
+})
+
 //#endregion electron

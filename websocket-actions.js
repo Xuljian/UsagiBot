@@ -1,3 +1,4 @@
+const FormData = require("form-data");
 const { USAGI_CONSTANT } = require("./usagi.constants");
 
 const messageLog = [];
@@ -7,6 +8,8 @@ var mainProcess = function () {
     const zlib = require("zlib");
 
     const WebSocket = require('ws')
+
+    const cdnUrl = 'https://cdn.discordapp.com/';
 
     const usagiConstants = require('./usagi.constants').USAGI_CONSTANT;
 
@@ -20,8 +23,17 @@ var mainProcess = function () {
 
     var validMimes = [
         'image/jpeg',
-        'image/png'
+        'image/png',
+        'image/gif',
+        'image/webp'
     ]
+
+    var mimeMapping = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/gif': 'gif',
+        'image/webp': 'webp'
+    }
 
     var messages = [
         'I dunno what you want :(',
@@ -56,7 +68,8 @@ var mainProcess = function () {
         },
         padoru: {
             typeStrong: true,
-            emoji: 'Padoru:800972310797484102'
+            emoji: 'Padoru:800972310797484102',
+            // message: 'https://i.kym-cdn.com/photos/images/original/001/683/921/18e.gif'
         },
         hate: {
             typeStrong: false,
@@ -78,7 +91,8 @@ var mainProcess = function () {
                         if (result != null) {
                             emojis.push({
                                 emoji: emoji.emoji,
-                                index: result.index
+                                index: result.index,
+                                message: emoji.message
                             });
                         }
                     }
@@ -227,16 +241,11 @@ var mainProcess = function () {
 
                 // botCounter(usableData);
                 reactToMessage(usableData);
+                logImage(usableData);
 
-                if (usableData.guild_id == null || checkTagged(usableData.content)) {
+                if (usableData.guild_id == null) {
                     if (!checkIgnore(usableData.channel_id)) {
                         logMessage(usableData, true, usableData.author?.id === usagiConstants.BOT_DATA.CLIENT_ID);
-                    }
-                    if (usableData.guild_id != null) {
-                        if (usableData.author?.id === usagiConstants.BOT_DATA.CLIENT_ID) {
-                            return;
-                        }
-                        replyHello(usableData);
                     }
                 } else {
                     if (!checkIgnore(usableData.channel_id)) {
@@ -293,8 +302,81 @@ var mainProcess = function () {
                         messageId: usableData.id,
                         emoji: o.emoji
                     })
+                    if (o.message != null) {
+                        restActions.sendMessage({
+                            channelId: usableData.channel_id,
+                            message: o.message
+                        })
+                    }
                 })
             }
+        }
+    }
+
+    var logImage = function(usableData) {
+        if (!tempRepositoryFunc.hasListenerForArchive(usableData.guild_id, usableData.channel_id)) return;
+
+        let channelId = tempRepositoryFunc.archiveChannel(usableData.guild_id);
+        if (channelId == null) return;
+        
+        if (usableData.author?.bot == true) return;
+
+        if (usableData.attachments != null && usableData.attachments.length > 0) {
+            let messageData = {
+                channelId: channelId
+            }
+            restActions.getImage(usableData.attachments[0].url, (buffer) => {
+                fileType.fromBuffer(buffer).then((o) => {
+                    if (validMimes.indexOf(o.mime) > -1) {
+                        if (usableData.author?.id != null && usableData.author?.avatar != null) {
+                            let url = `${cdnUrl}avatars/${usableData.author.id}/${usableData.author.avatar}`;
+                            restActions.getImage(url, (subBuffer) => {
+                                fileType.fromBuffer(subBuffer).then((i) => {
+                                    if (validMimes.indexOf(i.mime) > -1) {
+                                        let content = new FormData();
+                                        messageData.content = content;
+                                        content.append('payload_json', JSON.stringify({
+                                            embed: {
+                                                image: {
+                                                    url: `attachment://upload.${mimeMapping[o.mime]}`
+                                                },
+                                                footer: {
+                                                    text: `by ${usableData.author.nick != null ? usableData.author.nick : usableData.author.username}${realTimeRepository.channels[usableData.channel_id] == null ? '' : ' from ' + realTimeRepository.channels[usableData.channel_id].name}`,
+                                                    icon_url: `attachment://profile.${mimeMapping[i.mime]}`
+                                                }
+                                            }
+                                        }));
+                                        content.append('upload', buffer, {
+                                            filename: `upload.${mimeMapping[o.mime]}`
+                                        });
+                                        content.append('profile', subBuffer, {
+                                            filename: `profile.${mimeMapping[i.mime]}`
+                                        });
+                                        restActions.sendMessageComplex(messageData);
+                                    }
+                                })
+                            })
+                        } else {
+                            let content = new FormData();
+                            messageData.content = content;
+                            content.append('payload_json', JSON.stringify({
+                                embed: {
+                                    image: {
+                                        url: `attachment://upload.${mimeMapping[o.mime]}`
+                                    },
+                                    footer: {
+                                        text: `by ${usableData.author.nick != null ? usableData.author.nick : usableData.author.username}${realTimeRepository.channels[usableData.channel_id] == null ? '' : ' from ' + realTimeRepository.channels[usableData.channel_id].name}`,
+                                    }
+                                }
+                            }));
+                            content.append('upload', buffer, {
+                                filename: `upload.${mimeMapping[o.mime]}`
+                            });
+                            restActions.sendMessageComplex(messageData);
+                        }
+                    }
+                })
+            })
         }
     }
 
@@ -368,13 +450,17 @@ var mainProcess = function () {
                             message: `<@!${data.author?.id}> you rolled ${randomValue}`
                         });
                     } else {
-                        invalidCommands();
+                        invalidCommands(data);
                     }
                     break;
                 }
                 case 'math': {
                     try {
                         let result = scopeEval(args);
+                        if (isNaN(result)) {
+                            invalidCommands(data);
+                            return;
+                        }
                         restActions.sendMessage({
                             channelId: data.channel_id,
                             message: `<@!${data.author?.id}> value is ${result}`
@@ -387,31 +473,31 @@ var mainProcess = function () {
                     break;
                 }
                 case 'kick': {
-                    if (data.guild_id != null) {
-                        let regexTagged = /\<\@\!(\d*)\>/gm
-                        let regexed = regexTagged.exec(args);
-                        if (regexed[1] != null) {
-                            restActions.kickUser({
-                                guildId: data.guild_id,
-                                userId: regexed[1],
-                                executorId: data.author?.id,
-                                channelId: data.channel_id,
-                                failedMessage: `<@!${data.author?.id}>, you can\'t kick the user.`,
-                                successMessage: `<@!${data.author?.id}> kicked the user :D`
-                            })
-                        }
-                    } else {
-                        restActions.sendMessage({
-                            channelId: data.channel_id,
-                            message: `<@!${data.author?.id}> this command is only available in a guild`
-                        });
-                    }
+                    // if (data.guild_id != null) {
+                    //     let regexTagged = /\<\@\!(\d*)\>/gm
+                    //     let regexed = regexTagged.exec(args);
+                    //     if (regexed[1] != null) {
+                    //         restActions.kickUser({
+                    //             guildId: data.guild_id,
+                    //             userId: regexed[1],
+                    //             executorId: data.author?.id,
+                    //             channelId: data.channel_id,
+                    //             failedMessage: `<@!${data.author?.id}>, you can\'t kick the user.`,
+                    //             successMessage: `<@!${data.author?.id}> kicked the user :D`
+                    //         })
+                    //     }
+                    // } else {
+                    //     restActions.sendMessage({
+                    //         channelId: data.channel_id,
+                    //         message: `<@!${data.author?.id}> this command is only available in a guild`
+                    //     });
+                    // }
                     break;
                 }
                 default: {
-                    if (validEmojiChannel(data.channel_id) && data.attachments != null && data.attachments.length > 0) {
-                        processEmoji(command, data)
-                    }
+                    // if (validEmojiChannel(data.channel_id) && data.attachments != null && data.attachments.length > 0) {
+                    //     processEmoji(command, data)
+                    // }
                     break;
                 }
             }
@@ -465,6 +551,7 @@ var mainProcess = function () {
             evalString = evalString.split('{').join('(');
             evalString = evalString.split('}').join(')');
             evalString = evalString.split(' ').join('');
+            evalString = evalString.split('\\').join('');
             let mathRegex = /^[+\-/*\.\d\(\)]+$/;
 
             if (mathRegex.exec(evalString) == null) {

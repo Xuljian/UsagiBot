@@ -6,7 +6,8 @@ const {
 } = require("electron");
 
 const whiteListCommands = [
-    'dm', 'ignore', 'load', 'unignore', 'registerEmojiChannel', 'unregisterEmojiChannel', 'dmId'
+    'dm', 'ignore', 'load', 'unignore', 'registerEmojiChannel', 'unregisterEmojiChannel', 'dmId',
+    'unregisterGuildArchive', 'registerGuildArchive', 'registerArchiveListener', 'unregisterArchiveListener'
 ]
 
 var int = 0;

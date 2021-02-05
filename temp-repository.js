@@ -15,7 +15,9 @@ var realTimeRepository = {
     hasInit: false,
     fileInit: false,
     channelIgnore: [],
-    emojiChannel: []
+    emojiChannel: [],
+    archiveChannel: {},
+    archiveListenChannel: {}
 }
 
 var registerUsersFromGuilds = function () {
@@ -57,6 +59,19 @@ exports.getGuildName = function (id) {
     return realTimeRepository.guilds[id]?.name;
 }
 
+exports.hasListenerForArchive = function(guilId, channelId) {
+    let guildListener = realTimeRepository.archiveListenChannel[guilId];
+    if (guildListener == null) {
+        return false;
+    } else {
+        return guildListener.indexOf(channelId) > -1;
+    }
+}
+
+exports.archiveChannel = function(guildId) {
+    return realTimeRepository.archiveChannel[guildId];
+}
+
 exports.userAllowKick = function (guildId, executorId) {
     let guilds = realTimeRepository.guilds;
     let happeningGuild = guilds[guildId];
@@ -75,6 +90,10 @@ exports.userAllowKick = function (guildId, executorId) {
             roles = o.roles;
         }
     });
+
+    if (roles.length == 0) {
+       roles.push(happeningGuild.roles[0].id); 
+    }
 
     if (roles != null && roles.length > 0) {
         if (happeningGuild.roles != null && happeningGuild.roles.length > 0) {
@@ -141,6 +160,8 @@ var importFromFile = function () {
         realTimeRepository.users = repo.users;
         realTimeRepository.channelIgnore = repo.channelIgnore;
         realTimeRepository.emojiChannel = repo.emojiChannel || [];
+        realTimeRepository.archiveChannel = repo.archiveChannel || {};
+        realTimeRepository.archiveListenChannel = repo.archiveListenChannel || {};
         realTimeRepository.fileInit = true;
     })
 }

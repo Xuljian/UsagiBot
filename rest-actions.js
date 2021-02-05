@@ -12,6 +12,9 @@ const https = require('https');
 const agent = new https.Agent({ keepAlive: true })
 const fetch = require('node-fetch');
 
+const sharp = require('sharp');
+const FormData = require('form-data');
+
 // objects in this queue looks like the object below
 //{
 //    hostname: 'whatever.com',
@@ -149,6 +152,21 @@ exports.refreshGuildChannels = function (guildId, callback) {
     queue.push(subOptions);
 }
 
+exports.sendMessageComplex = function (messageObj) {
+    if (messageObj.channelId == null) {
+        console.log('channel id required');
+        return;
+    }
+
+    let subOptions = {
+        url: restAPIUrl + `/channels/${messageObj.channelId}/messages`,
+        method: 'post',
+        body: messageObj.content,
+        isComplex: true
+    }
+    queue.push(subOptions);
+}
+
 //{
 //    guildId: 'string',
 //    userId: 'string',
@@ -223,14 +241,19 @@ var executeRequest = function () {
             let options = queue.shift();
 
             if (options != null) {
-                let fetchReq = fetch(options.url, {
-                    method: options.method,
-                    headers: {
+                let headers = {
                         'Authorization': `Bot ${usagiConstant.BOT_DATA.BOT_TOKEN}`,
                         'Accept': '*/*',
                         'User-Agent': 'DiscordBot (UsagiBot.com, 0.0.1)',
-                        'Content-Type': 'application/json'
-                    },
+                        'content-type': 'application/json'
+                    };
+                if (options.isComplex != null && options.isComplex) {
+                    headers = Object.assign(headers, options.body.getHeaders())
+                }
+
+                let fetchReq = fetch(options.url, {
+                    method: options.method,
+                    headers: headers,
                     body: options.body,
                     agent: agent
                 });

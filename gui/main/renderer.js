@@ -85,6 +85,41 @@ function executeCommand() {
             window.electron.usagi(data);
             break;
         }
+        case 'registerGuildArchive': {
+            let data = {
+                command: 'registerGuildArchive',
+                guildId: currentData.guildId,
+                channelId: currentData.channelId
+            }
+            window.electron.usagi(data);
+            break;
+        }
+        case 'unregisterGuildArchive': {
+            let data = {
+                command: 'unregisterGuildArchive',
+                channelId: currentData.guildId
+            }
+            window.electron.usagi(data);
+            break;
+        }
+        case 'registerArchiveListener': {
+            let data = {
+                command: 'registerArchiveListener',
+                guildId: currentData.guildId,
+                channelId: currentData.channelId
+            }
+            window.electron.usagi(data);
+            break;
+        }
+        case 'unregisterArchiveListener': {
+            let data = {
+                command: 'unregisterArchiveListener',
+                guildId: currentData.guildId,
+                channelId: currentData.channelId
+            }
+            window.electron.usagi(data);
+            break;
+        }
     }
 }
 
