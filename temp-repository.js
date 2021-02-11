@@ -149,7 +149,6 @@ var exportToFile = function () {
 var importFromFile = function () {
     fs.readFile(dumpFilePath, 'utf8', (a, b) => {
         if (a) {
-            console.log(a);
             realTimeRepository.fileInit = true;
             return;
         }

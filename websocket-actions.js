@@ -424,10 +424,10 @@ var mainProcess = function () {
 
     var matchCommand = function (data) {
         let content = data.content;
-        let regexCommand = /^\@\@.*/gm
+        let regexCommand = /^\#\!.*/gm
         let result = regexCommand.exec(content);
         if (result) {
-            content = content.replace(/^\@\@/, '');
+            content = content.replace(/^\#\!/, '');
             let splitCommand = content.split(' ');
             let command = splitCommand.shift();
             let args = splitCommand.join(' ');

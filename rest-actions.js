@@ -278,7 +278,6 @@ var executeRequest = function () {
                         }
                     } else {
                         o.json().then((i) => { 
-                            console.log(i); 
                             console.log(`server returned ${o.statusText} with message\n`, i);
                         }, (i) => { console.log('thrown from json function 2', i) })
                     }
