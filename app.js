@@ -60,7 +60,7 @@ function createWindow() {
     })
 
     mainWindow.loadFile('.\\gui\\main\\views\\index.html')
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 }
 
 function createRepository() {
@@ -76,7 +76,7 @@ function createRepository() {
     })
 
     repositoryWindow.loadFile('.\\gui\\repo\\views\\index.html')
-    repositoryWindow.webContents.openDevTools();
+    // repositoryWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {

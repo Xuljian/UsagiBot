@@ -167,8 +167,13 @@ var importFromFile = function () {
 }
 importFromFile();
 
-setInterval(registerUsersFromGuilds, 1000);
-setInterval(updateGuilds, 10000);
-setInterval(exportToFile, 1000);
+let intervalReady = setInterval(() => {
+    if (realTimeRepository.fileInit) {
+        setInterval(registerUsersFromGuilds, 1000);
+        setInterval(updateGuilds, 10000);
+        setInterval(exportToFile, 1000);
+        clearInterval(intervalReady);
+    }
+});
 
 exports.realTimeRepository = realTimeRepository;

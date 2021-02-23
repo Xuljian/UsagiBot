@@ -10,6 +10,7 @@ var mainProcess = function () {
     const WebSocket = require('ws')
 
     const cdnUrl = 'https://cdn.discordapp.com/';
+    const happyGifPath = 'C:\\Data\\UsagiBotDump\\happy.gif';
 
     const usagiConstants = require('./usagi.constants').USAGI_CONSTANT;
 
@@ -20,6 +21,8 @@ var mainProcess = function () {
     const fileType = require('file-type');
 
     const maxImageSize = 262144;
+
+    const fs = require('fs');
 
     var validMimes = [
         'image/jpeg',
@@ -255,6 +258,7 @@ var mainProcess = function () {
                         if (usableData.author?.id === usagiConstants.BOT_DATA.CLIENT_ID) {
                             return;
                         }
+                        botCounter(usableData);
                         matchCommand(usableData);
                     }
                 }
@@ -268,13 +272,32 @@ var mainProcess = function () {
     }
 
     var botCounter = function(data) {
+        let textRegex = /\*\*Xuljian\*\* and \*\*.*\*\* are now \"friends\"\!/;
         if (data.channel_id != null) {
+            let messageData = {
+                channelId: data.channel_id
+            }
             let message = data.content;
-            if (message.indexOf('turu') > -1 && data.author?.id !== usagiConstants.BOT_DATA.CLIENT_ID && data.author?.bot == true) {
-                restActions.sendMessage({
-                    channelId: data.channel_id,
-                    message: `turu?`
-                });
+            if (textRegex.exec(message) != null && data.author?.id !== usagiConstants.BOT_DATA.CLIENT_ID && data.author?.bot) {
+                fs.readFile(happyGifPath, (err, buffer) => {
+                    if (err) {
+                        console.log('OH NO!!!');
+                        return;
+                    }
+                    fileType.fromBuffer(buffer).then((o) => {
+                        if (validMimes.indexOf(o.mime) > -1) {
+                            let content = new FormData();
+                            messageData.content = content;
+                            content.append('payload_json', JSON.stringify({
+                                content: 'Yay!!!'
+                            }));
+                            content.append('happy', buffer, {
+                                filename: `happy.${mimeMapping[o.mime]}`
+                            });
+                            restActions.sendMessageComplex(messageData);
+                        }
+                    })
+                })
             }
         }
     }
@@ -322,59 +345,61 @@ var mainProcess = function () {
         if (usableData.author?.bot == true) return;
 
         if (usableData.attachments != null && usableData.attachments.length > 0) {
-            let messageData = {
-                channelId: channelId
-            }
-            restActions.getImage(usableData.attachments[0].url, (buffer) => {
-                fileType.fromBuffer(buffer).then((o) => {
-                    if (validMimes.indexOf(o.mime) > -1) {
-                        if (usableData.author?.id != null && usableData.author?.avatar != null) {
-                            let url = `${cdnUrl}avatars/${usableData.author.id}/${usableData.author.avatar}`;
-                            restActions.getImage(url, (subBuffer) => {
-                                fileType.fromBuffer(subBuffer).then((i) => {
-                                    if (validMimes.indexOf(i.mime) > -1) {
-                                        let content = new FormData();
-                                        messageData.content = content;
-                                        content.append('payload_json', JSON.stringify({
-                                            embed: {
-                                                image: {
-                                                    url: `attachment://upload.${mimeMapping[o.mime]}`
-                                                },
-                                                footer: {
-                                                    text: `by ${usableData.author.nick != null ? usableData.author.nick : usableData.author.username}${realTimeRepository.channels[usableData.channel_id] == null ? '' : ' from ' + realTimeRepository.channels[usableData.channel_id].name}`,
-                                                    icon_url: `attachment://profile.${mimeMapping[i.mime]}`
+            usableData.attachments.forEach(attachment => {
+                let messageData = {
+                    channelId: channelId
+                }
+                restActions.getImage(attachment.url, (buffer) => {
+                    fileType.fromBuffer(buffer).then((o) => {
+                        if (validMimes.indexOf(o.mime) > -1) {
+                            if (usableData.author?.id != null && usableData.author?.avatar != null) {
+                                let url = `${cdnUrl}avatars/${usableData.author.id}/${usableData.author.avatar}`;
+                                restActions.getImage(url, (subBuffer) => {
+                                    fileType.fromBuffer(subBuffer).then((i) => {
+                                        if (validMimes.indexOf(i.mime) > -1) {
+                                            let content = new FormData();
+                                            messageData.content = content;
+                                            content.append('payload_json', JSON.stringify({
+                                                embed: {
+                                                    image: {
+                                                        url: `attachment://upload.${mimeMapping[o.mime]}`
+                                                    },
+                                                    footer: {
+                                                        text: `by ${usableData.author.nick != null ? usableData.author.nick : usableData.author.username}${realTimeRepository.channels[usableData.channel_id] == null ? '' : ' from ' + realTimeRepository.channels[usableData.channel_id].name}`,
+                                                        icon_url: `attachment://profile.${mimeMapping[i.mime]}`
+                                                    }
                                                 }
-                                            }
-                                        }));
-                                        content.append('upload', buffer, {
-                                            filename: `upload.${mimeMapping[o.mime]}`
-                                        });
-                                        content.append('profile', subBuffer, {
-                                            filename: `profile.${mimeMapping[i.mime]}`
-                                        });
-                                        restActions.sendMessageComplex(messageData);
-                                    }
+                                            }));
+                                            content.append('upload', buffer, {
+                                                filename: `upload.${mimeMapping[o.mime]}`
+                                            });
+                                            content.append('profile', subBuffer, {
+                                                filename: `profile.${mimeMapping[i.mime]}`
+                                            });
+                                            restActions.sendMessageComplex(messageData);
+                                        }
+                                    })
                                 })
-                            })
-                        } else {
-                            let content = new FormData();
-                            messageData.content = content;
-                            content.append('payload_json', JSON.stringify({
-                                embed: {
-                                    image: {
-                                        url: `attachment://upload.${mimeMapping[o.mime]}`
-                                    },
-                                    footer: {
-                                        text: `by ${usableData.author.nick != null ? usableData.author.nick : usableData.author.username}${realTimeRepository.channels[usableData.channel_id] == null ? '' : ' from ' + realTimeRepository.channels[usableData.channel_id].name}`,
+                            } else {
+                                let content = new FormData();
+                                messageData.content = content;
+                                content.append('payload_json', JSON.stringify({
+                                    embed: {
+                                        image: {
+                                            url: `attachment://upload.${mimeMapping[o.mime]}`
+                                        },
+                                        footer: {
+                                            text: `by ${usableData.author.nick != null ? usableData.author.nick : usableData.author.username}${realTimeRepository.channels[usableData.channel_id] == null ? '' : ' from ' + realTimeRepository.channels[usableData.channel_id].name}`,
+                                        }
                                     }
-                                }
-                            }));
-                            content.append('upload', buffer, {
-                                filename: `upload.${mimeMapping[o.mime]}`
-                            });
-                            restActions.sendMessageComplex(messageData);
+                                }));
+                                content.append('upload', buffer, {
+                                    filename: `upload.${mimeMapping[o.mime]}`
+                                });
+                                restActions.sendMessageComplex(messageData);
+                            }
                         }
-                    }
+                    })
                 })
             })
         }
