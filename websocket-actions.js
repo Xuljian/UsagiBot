@@ -522,6 +522,8 @@ var mainProcess = function () {
                                               The ext is basically the character file you wish to convert to.
                                               \`\`\`fhp for female human\nfnp for female newman\nfcp for female cast\nfdp for female deuman\nmhp for male human\mmnp for male newman\nmcp for male cast\nmdp for male deuman\`\`\`
 
+                                              PS: If ext provided don't match any of the given ones above the CML will be given.
+
                                               Example: \`\`#!pso2search npc_04 fhp\`\`
                                               The example above will provide you with the npc file of Matoi in female human`
                             }
