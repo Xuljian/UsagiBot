@@ -37,7 +37,8 @@ function executeCommand() {
             let data = {
                 command: 'dm',
                 channelId: currentData.channelId,
-                message: message
+                message: message,
+                messageReference: currentData.messageReference
             }
             window.electron.usagi(data);
             break;
@@ -121,12 +122,29 @@ function executeCommand() {
             break;
         }
     }
+    delete currentData.messageReference;
 }
 
 function eventBinding() {
     window.addEventListener('resize', resize);
     messageLogElement.addEventListener('message-click', handleClick);
     let executeButton = document.getElementById("execute");
+
+    let messageId = document.querySelector('div[message-id]');
+    messageId.parentElement.addEventListener('click', () => {
+        let userIdEl = document.querySelector('div[user-id]');
+        let id = userIdEl.innerText;
+        if (id == null || id.trim() === '' || id.trim() === '-') {
+            return;
+        }
+        if (currentData != null) {
+            currentData.messageReference = {
+                guild_id: currentData.guildId,
+                channel_id: currentData.channelId,
+                message_id: currentData.messageId
+            }
+        }
+    });
 
     let userId = document.querySelector('div[user-id]');
     userId.parentElement.addEventListener('click', () => {

@@ -76,6 +76,7 @@ exports.sendMessage = function (messageObj) {
         method: 'post',
         body: JSON.stringify({
             content: messageObj.message,
+            message_reference: messageObj.messageReference,
             tts: false,
             embed: messageObj.embed
         })

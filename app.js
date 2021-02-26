@@ -4,7 +4,7 @@ const readline = require('readline');
 const { realTimeRepository } = require('./temp-repository');
 const { clearInterval } = require('timers');
 
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
 const communicator = require('./pipeline')
@@ -108,65 +108,6 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit();
         process.exit();
-    }
-})
-
-ipcMain.on('dm', (event, data) => {
-    restActions.sendMessage(data);
-})
-
-ipcMain.on('dmId', (event, data) => {
-    restActions.sendDMByIds(data);
-})
-
-ipcMain.on('ignore', (event, data) => {
-    realTimeRepository.channelIgnore.push(data.channelId);
-})
-
-ipcMain.on('unignore', (event, data) => {
-    realTimeRepository.channelIgnore = realTimeRepository.channelIgnore.filter((o) => {
-        return o != data.channelId;
-    })
-})
-
-ipcMain.on('registerEmojiChannel', (event, data) => {
-    realTimeRepository.emojiChannel.push(data.channelId);
-})
-
-ipcMain.on('unregisterEmojiChannel', (event, data) => {
-    realTimeRepository.emojiChannel = realTimeRepository.emojiChannel.filter((o) => {
-        return o != data.channelId;
-    })
-})
-
-ipcMain.on('registerGuildArchive', (event, data) => {
-    realTimeRepository.archiveChannel[data.guildId] = data.channelId;
-})
-
-ipcMain.on('unregisterGuildArchive', (event, data) => {
-    delete realTimeRepository.archiveChannel[data.guildId];
-})
-
-ipcMain.on('registerArchiveListener', (event, data) => {
-    let archiveListenerChannel = realTimeRepository.archiveListenChannel[data.guildId];
-    if (archiveListenerChannel == null) {
-        realTimeRepository.archiveListenChannel[data.guildId] = [data.channelId];
-    } else {
-        if (archiveListenerChannel.indexOf(data.channelId) < 0) {
-            archiveListenerChannel.push(data.channelId);
-        }
-    }
-})
-
-ipcMain.on('unregisterArchiveListener', (event, data) => {
-    let archiveListenerChannel = realTimeRepository.archiveListenChannel[data.guildId];
-    if (archiveListenerChannel == null) {
-        return;
-    } else {
-        let foundIndex = archiveListenerChannel.indexOf(data.channelId);
-        if (foundIndex > -1) {
-            archiveListenerChannel.splice(foundIndex, 1);
-        }
     }
 })
 

@@ -1,6 +1,8 @@
 const FormData = require("form-data");
 const { USAGI_CONSTANT } = require("./usagi.constants");
 
+const pso2Modules = require('./pso2-modules');
+
 const messageLog = [];
 
 var mainProcess = function () {
@@ -435,7 +437,7 @@ var mainProcess = function () {
         if (usableData.attachments != null && usableData.attachments.length > 0) {
             restActions.getImage(usableData.attachments[0].url, (buffer) => {
                 fileType.fromBuffer(buffer).then((o) => {
-                    if (validMimes.indexOf(o.mime) > -1) {
+                    if (o != null && validMimes.indexOf(o.mime) > -1) {
                         let base64image = buffer.toString('base64');
                         data.imageUri = `data:${o.mime};base64,${base64image}`;
                         messageLog.push(data);
@@ -463,7 +465,7 @@ var mainProcess = function () {
                     if (splitArgs[0] === '?') {
                         restActions.sendMessage({
                             channelId: data.channel_id,
-                            message: `<@!${data.author?.id}> The command is "@@random <min> <max>" where min and max are inclusive. It will not work if both are not given`
+                            message: `<@!${data.author?.id}> The command is "#!random <min> <max>" where min and max are inclusive. It will not work if both are not given`
                         });
                     } else if (/\d+/.exec(splitArgs[0]) != null && /\d+/.exec(splitArgs[1]) != null) {
                         let low = parseInt(splitArgs[0]);
@@ -494,6 +496,75 @@ var mainProcess = function () {
                         console.log(e);
                         invalidCommands(data);
                         return;
+                    }
+                    break;
+                }
+                case 'pso2search': {
+                    if (!pso2Modules.pso2ModulesReady) {
+                        restActions.sendMessage({
+                            channelId: data.channel_id,
+                            message: `<@!${data.author?.id}> this function is not ready yet`
+                        });
+                        return;
+                    }
+
+                    if (args == null || args === '' || args === '?') {
+                        restActions.sendMessage({
+                            channelId: data.channel_id,
+                            embed: {
+                                description: `**Using pso2search**
+
+                                              \`\`#!pso2search <npc cml name>\`\`
+
+                                              Visit this link https://docs.google.com/spreadsheets/d/1GQwG49iYM1sgJhyAU5AWP-gboemzfIZjBGjTGEZSET4/edit#gid=126227794
+                                              In the spreadsheet find the NPC you wish to get the files for and replace <npc cml name> with the name in the CML column of the spreadsheet when using this command
+
+                                              Example: \`\`#!pso2search npc_04\`\`
+                                              The example above will provide you with the npc file of Matoi`
+                            }
+                        });
+                    } else {
+                        let cmlName = args;
+                        pso2Modules.getPayload(cmlName, (payload) => {
+                            if (payload == null) {
+                                restActions.sendMessage({
+                                    channelId: data.channel_id,
+                                    messageReference: {
+                                        channel_id: data.channel_id,
+                                        message_id: data.id,
+                                        guild_id: data.guild_id
+                                    },
+                                    message: `<@!${data.author?.id}> can't find the file sorry :(`
+                                });
+                            } else if (payload === 'not null') {
+                                restActions.sendMessage({
+                                    channelId: data.channel_id,
+                                    messageReference: {
+                                        channel_id: data.channel_id,
+                                        message_id: data.id,
+                                        guild_id: data.guild_id
+                                    },
+                                    message: `<@!${data.author?.id}> this command is out of order, I have pinged my master. Sorry for the inconvenience :(`
+                                });
+                            } else {
+                                let messageData = {
+                                    channelId: data.channel_id,
+                                }
+                                let content = new FormData();
+                                messageData.content = content;
+                                content.append('payload_json', JSON.stringify({
+                                    message_reference: {
+                                        channel_id: data.channel_id,
+                                        message_id: data.id,
+                                        guild_id: data.guild_id
+                                    }
+                                }));
+                                content.append(cmlName, payload.buffer, {
+                                    filename: `${cmlName}.${payload.extension}`
+                                });
+                                restActions.sendMessageComplex(messageData);
+                            }
+                        });
                     }
                     break;
                 }
