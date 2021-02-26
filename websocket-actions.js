@@ -514,18 +514,26 @@ var mainProcess = function () {
                             embed: {
                                 description: `**Using pso2search**
 
-                                              \`\`#!pso2search <npc cml name>\`\`
+                                              \`\`#!pso2search <npc cml name> <ext>\`\`
 
                                               Visit this link https://docs.google.com/spreadsheets/d/1GQwG49iYM1sgJhyAU5AWP-gboemzfIZjBGjTGEZSET4/edit#gid=126227794
                                               In the spreadsheet find the NPC you wish to get the files for and replace <npc cml name> with the name in the CML column of the spreadsheet when using this command
 
-                                              Example: \`\`#!pso2search npc_04\`\`
-                                              The example above will provide you with the npc file of Matoi`
+                                              The ext is basically the character file you wish to convert to.
+                                              \`\`\`fhp for female human\nfnp for female newman\nfcp for female cast\nfdp for female deuman\nmhp for male human\mmnp for male newman\nmcp for male cast\nmdp for male deuman\`\`\`
+
+                                              Example: \`\`#!pso2search npc_04 fhp\`\`
+                                              The example above will provide you with the npc file of Matoi in female human`
                             }
                         });
                     } else {
-                        let cmlName = args;
-                        pso2Modules.getPayload(cmlName, (payload) => {
+                        let argArr = args.split(" ");
+                        let cmlName = argArr[0];
+                        let ext = null;
+                        if (argArr.length > 1) {
+                            ext = argArr[1];
+                        }
+                        pso2Modules.getPayloadWildcard(cmlName, ext, (payload) => {
                             if (payload == null) {
                                 restActions.sendMessage({
                                     channelId: data.channel_id,
