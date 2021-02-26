@@ -111,7 +111,8 @@ let processConversionCml = function(inputFilePath, outputPath, extension, callba
     if (extension == null || extension === '' || allowConversionExtension.indexOf(extension) < 0) {
         callback({
             newPath: `${inputFilePath}`,
-            newExtension: `cml`
+            newExtension: `cml`,
+            cleanupPath: outputPath
         }, mainCallback)
         return;
     }
