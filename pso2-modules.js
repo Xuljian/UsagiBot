@@ -34,17 +34,21 @@ exports.pso2ModulesReady = true;
 
 const queue = [];
 
-exports.getPayloadWildcard = function(name, ext, callback) {
+exports.getPayload = function(name, ext, exact, callback) {
     queue.push({
         name: name,
         ext: ext,
+        exact: exact,
         callback: callback
     })
 }
 
-let getPayload = function(name, num, ext, callback) {
+let getPayload = function(name, num, ext, exact, callback) {
     const executor = require('child_process');
     let regex = new RegExp(`^.*\\.*${name}.*\.(${regexExtensions})$`);
+    if (exact) {
+        regex = new RegExp(`^.*\\.*${name}$`);
+    }
     let foundString = newFileMaps.find(string => {
         return regex.exec(string) != null;
     });
@@ -71,7 +75,7 @@ let getPayload = function(name, num, ext, callback) {
                 let outputPath = `${destinationFolder}${num}`;
                 switch (extension) {
                     case "cml": {
-                        processConversionCml(inputFilePath, outputPath, ext, uploadFile, callback);
+                        processConversionCml(inputFilePath, outputPath, ext, exact, uploadFile, callback);
                         break;
                     }
                 }
@@ -85,28 +89,37 @@ let getPayload = function(name, num, ext, callback) {
 let uploadFile = function(subDat, callback) {
     if (subDat.error) {
         callback("not null");
+        cleanup(subDat.cleanupPath);
     } else {
+        let exactFilename = subDat.newPath.split('\\')[subDat.newPath.split('\\').length - 1];
+        let filename = exactFilename.split('.')[0];
         fs.readFile(subDat.newPath, (subSubSubErr, data) => {
             if (subSubSubErr) {
                 callback("not null");
+                cleanup(subDat.cleanupPath);
                 return;
             }
             callback({
                 buffer: data,
+                filename: filename,
                 extension: subDat.newExtension
             });
-            fs.rmdir(`${subDat.cleanupPath}`, {
-                maxRetries: 10,
-                retryDelay: 500,
-                recursive: true
-            }, () => {
-
-            })
+            cleanup(subDat.cleanupPath);
         })
     }
 }
 
-let processConversionCml = function(inputFilePath, outputPath, extension, callback, mainCallback) {
+let cleanup = function(cleanupPath) {
+    fs.rmdir(`${cleanupPath}`, {
+        maxRetries: 10,
+        retryDelay: 500,
+        recursive: true
+    }, () => {
+
+    })
+}
+
+let processConversionCml = function(inputFilePath, outputPath, extension, exact, callback, mainCallback) {
     const executor = require('child_process');
     if (extension == null || extension === '' || allowConversionExtension.indexOf(extension) < 0) {
         callback({
@@ -152,7 +165,7 @@ setInterval(() => {
         }
         let num = int++;
         fs.mkdirSync(`${destinationFolder}${num}`);
-        getPayload(dat.name, num, dat.ext, dat.callback);
+        getPayload(dat.name, num, dat.ext, dat.exact, dat.callback);
         isReady = true;
     }
 }, 500);

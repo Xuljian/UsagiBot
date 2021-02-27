@@ -43,16 +43,9 @@ var mainProcess = function () {
     var messages = [
         'I dunno what you want :(',
         'Wrong commands maybe?',
-        'don\'t be mean :(',
         '*Rabbit noises*',
         '*Angry rabbit noises*'
     ];
-
-    var hello = [
-        '*snuggles*',
-        '*kicks around*',
-        'Hello. :)'
-    ]
 
     var stringMappedEmoji = {
         program: {
@@ -500,148 +493,21 @@ var mainProcess = function () {
                     break;
                 }
                 case 'pso2search': {
-                    if (!pso2Modules.pso2ModulesReady) {
-                        restActions.sendMessage({
-                            channelId: data.channel_id,
-                            message: `<@!${data.author?.id}> this function is not ready yet`
-                        });
-                        return;
-                    }
-
-                    if (args == null || args === '' || args === '?') {
-                        restActions.sendMessage({
-                            channelId: data.channel_id,
-                            embed: {
-                                description: `**Using pso2search**
-
-                                              \`\`#!pso2search <npc cml name> <ext>\`\`
-
-                                              Visit this link https://docs.google.com/spreadsheets/d/1GQwG49iYM1sgJhyAU5AWP-gboemzfIZjBGjTGEZSET4/edit#gid=126227794
-                                              In the spreadsheet find the NPC you wish to get the files for and replace <npc cml name> with the name in the CML column of the spreadsheet when using this command
-
-                                              The ext is basically the character file you wish to convert to.
-                                              \`\`\`fhp for female human\nfnp for female newman\nfcp for female cast\nfdp for female deuman\nmhp for male human\mmnp for male newman\nmcp for male cast\nmdp for male deuman\`\`\`
-
-                                              PS: If ext provided don't match any of the given ones above the CML will be given.
-
-                                              Example: \`\`#!pso2search npc_04 fhp\`\`
-                                              The example above will provide you with the npc file of Matoi in female human`
-                            }
-                        });
-                    } else {
-                        let argArr = args.split(" ");
-                        let cmlName = argArr[0];
-                        let ext = null;
-                        if (argArr.length > 1) {
-                            ext = argArr[1];
-                        }
-                        pso2Modules.getPayloadWildcard(cmlName, ext, (payload) => {
-                            if (payload == null) {
-                                restActions.sendMessage({
-                                    channelId: data.channel_id,
-                                    messageReference: {
-                                        channel_id: data.channel_id,
-                                        message_id: data.id,
-                                        guild_id: data.guild_id
-                                    },
-                                    message: `<@!${data.author?.id}> can't find the file sorry :(`
-                                });
-                            } else if (payload === 'not null') {
-                                restActions.sendMessage({
-                                    channelId: data.channel_id,
-                                    messageReference: {
-                                        channel_id: data.channel_id,
-                                        message_id: data.id,
-                                        guild_id: data.guild_id
-                                    },
-                                    message: `<@!${data.author?.id}> this command is out of order, I have pinged my master. Sorry for the inconvenience :(`
-                                });
-                            } else {
-                                let messageData = {
-                                    channelId: data.channel_id,
-                                }
-                                let content = new FormData();
-                                messageData.content = content;
-                                content.append('payload_json', JSON.stringify({
-                                    message_reference: {
-                                        channel_id: data.channel_id,
-                                        message_id: data.id,
-                                        guild_id: data.guild_id
-                                    }
-                                }));
-                                content.append(cmlName, payload.buffer, {
-                                    filename: `${cmlName}.${payload.extension}`
-                                });
-                                restActions.sendMessageComplex(messageData);
-                            }
-                        });
-                    }
+                    processPSO2Search(data, args);
                     break;
                 }
-                case 'kick': {
-                    // if (data.guild_id != null) {
-                    //     let regexTagged = /\<\@\!(\d*)\>/gm
-                    //     let regexed = regexTagged.exec(args);
-                    //     if (regexed[1] != null) {
-                    //         restActions.kickUser({
-                    //             guildId: data.guild_id,
-                    //             userId: regexed[1],
-                    //             executorId: data.author?.id,
-                    //             channelId: data.channel_id,
-                    //             failedMessage: `<@!${data.author?.id}>, you can\'t kick the user.`,
-                    //             successMessage: `<@!${data.author?.id}> kicked the user :D`
-                    //         })
-                    //     }
-                    // } else {
-                    //     restActions.sendMessage({
-                    //         channelId: data.channel_id,
-                    //         message: `<@!${data.author?.id}> this command is only available in a guild`
-                    //     });
-                    // }
+                case 'pso2file': {
+                    processPSO2Search(data, args, true);
                     break;
                 }
                 default: {
-                    // if (validEmojiChannel(data.channel_id) && data.attachments != null && data.attachments.length > 0) {
-                    //     processEmoji(command, data)
-                    // }
+                    if (validEmojiChannel(data.channel_id) && data.attachments != null && data.attachments.length > 0) {
+                        processEmoji(command, data)
+                    }
                     break;
                 }
             }
         }
-    }
-
-    var processEmoji = function(emojiName, data) {
-        let imageData = data.attachments[0];
-        function mainEmojiProcessor(buffer) {
-            fileType.fromBuffer(buffer).then((o) => {
-                if (validMimes.indexOf(o.mime) > -1) {
-                    let base64image = buffer.toString('base64');
-                    restActions.registerEmoji({
-                        name: emojiName.split('"').join('').split(':').join(''),
-                        image: `data:${o.mime};base64,${base64image}`,
-                        channelId: data.channel_id,
-                        guildId: data.guild_id,
-                        messageId: data.id,
-                        callback: (data, options) => {
-                            if (data.id != null) {
-                                restActions.deleteMessage(options.channelId, options.messageId);
-                                restActions.sendMessage({
-                                    channelId: options.channelId,
-                                    message: `Emoji added <:${data.name}:${data.id}>`
-                                })
-                            }
-                        }
-                    })
-                }
-            })
-        }
-
-        restActions.getImage(imageData.url, (buffer) => {
-            if (Buffer.byteLength(buffer) > maxImageSize) {
-                imageTooHuge(data);
-            }
-            mainEmojiProcessor(buffer);
-        })
     }
 
     var validEmojiChannel = function(channelId) {
@@ -668,17 +534,6 @@ var mainProcess = function () {
         }.bind(cleanScope)();
     }
 
-    var replyHello = function (data) {
-        let low = 0;
-        let high = hello.length - 1;
-        let randomValue = Math.floor(Math.random() * (high - low + 1) + low);
-
-        restActions.sendMessage({
-            channelId: data.channel_id,
-            message: `<@!${data.author?.id}> ${hello[randomValue]}`
-        });
-    }
-
     var invalidCommands = function (data) {
         let low = 0;
         let high = messages.length - 1;
@@ -695,18 +550,6 @@ var mainProcess = function () {
             channelId: data.channel_id,
             message: `<@!${data.author?.id}> the file you uploaded is too huge in terms of size. A max of 256kb is allowed.`
         });
-    }
-
-    var checkTagged = function (content) {
-        let regexTagged = /\<\@(?:\!|\&|)(\d*)\>/gm
-        let capturedContent = null;
-        do {
-            capturedContent = regexTagged.exec(content);
-            if (capturedContent && capturedContent[1] === usagiConstants.BOT_DATA.CLIENT_ID) {
-                return true;
-            }
-        } while (capturedContent)
-
     }
 
     var registerSequenceNumber = function (data) {
@@ -748,6 +591,142 @@ var mainProcess = function () {
     var processMessage = function (msg) {
         console.log(msg);
     }
+
+    //#region websocket complex processes
+    var processPSO2Search = function(data, args, exact) {
+        if (!pso2Modules.pso2ModulesReady) {
+            restActions.sendMessage({
+                channelId: data.channel_id,
+                message: `<@!${data.author?.id}> this function is not ready yet`
+            });
+            return;
+        }
+
+        if (args == null || args === '' || args === '?') {
+            let description = getDescription(exact);
+            restActions.sendMessage({
+                channelId: data.channel_id,
+                embed: {
+                    description: description
+                }
+            });
+        } else {
+            let argArr = args.split(" ");
+            let cmlName = argArr[0];
+            let ext = null;
+            if (argArr.length > 1) {
+                ext = argArr[1];
+            }
+            pso2Modules.getPayload(cmlName, ext, exact, (payload) => {
+                if (payload == null) {
+                    restActions.sendMessage({
+                        channelId: data.channel_id,
+                        messageReference: {
+                            channel_id: data.channel_id,
+                            message_id: data.id,
+                            guild_id: data.guild_id
+                        },
+                        message: `<@!${data.author?.id}> can't find the file sorry :(`
+                    });
+                } else if (payload === 'not null') {
+                    restActions.sendMessage({
+                        channelId: data.channel_id,
+                        messageReference: {
+                            channel_id: data.channel_id,
+                            message_id: data.id,
+                            guild_id: data.guild_id
+                        },
+                        message: `<@!${data.author?.id}> this command is out of order, I have pinged my master. Sorry for the inconvenience :(`
+                    });
+                } else {
+                    let messageData = {
+                        channelId: data.channel_id,
+                    }
+                    let content = new FormData();
+                    messageData.content = content;
+                    content.append('payload_json', JSON.stringify({
+                        message_reference: {
+                            channel_id: data.channel_id,
+                            message_id: data.id,
+                            guild_id: data.guild_id
+                        }
+                    }));
+                    content.append(payload.filename, payload.buffer, {
+                        filename: `${payload.filename}.${payload.extension}`
+                    });
+                    restActions.sendMessageComplex(messageData);
+                }
+            });
+        }
+    }
+
+    let getDescription = function(exact) {
+        if(!exact)
+            return `**Using pso2search**
+
+                    \`\`#!pso2search <npc cml name> <ext>\`\`
+
+                    Visit this link https://docs.google.com/spreadsheets/d/1GQwG49iYM1sgJhyAU5AWP-gboemzfIZjBGjTGEZSET4/edit#gid=126227794
+                    In the spreadsheet find the NPC you wish to get the files for and replace <npc cml name> with the name in the CML column of the spreadsheet when using this command
+
+                    The ext is basically the character file you wish to convert to. (Applicable for CML files only)
+                    \`\`\`fhp for female human\nfnp for female newman\nfcp for female cast\nfdp for female deuman\nmhp for male human\mmnp for male newman\nmcp for male cast\nmdp for male deuman\`\`\`
+
+                    PS: If ext provided don't match any of the given ones above, the CML will be given.
+            
+                    Example: \`\`#!pso2search npc_04 fdp\`\`
+                    The example above will provide you with the npc file of Matoi for female deuman`
+        else
+            return `**Using pso2file**
+
+                    \`\`#!pso2file <extracted full filename> <ext>\`\`
+                    
+                    Use this only when you know the filename exactly, otherwise use pso2search
+
+                    The ext is basically the character file you wish to convert to. (Applicable for CML files only)
+                    \`\`\`fhp for female human\nfnp for female newman\nfcp for female cast\nfdp for female deuman\nmhp for male human\mmnp for male newman\nmcp for male cast\nmdp for male deuman\`\`\`
+
+                    PS: If ext provided don't match any of the given ones above, the CML will be given.
+            
+                    Example: \`\`#!pso2file np_npc_91.cml fhp\`\`
+                    The example above will provide you with the npc file of Io for female human`
+    }
+
+    var processEmoji = function(emojiName, data) {
+        let imageData = data.attachments[0];
+        function mainEmojiProcessor(buffer) {
+            fileType.fromBuffer(buffer).then((o) => {
+                if (validMimes.indexOf(o.mime) > -1) {
+                    let base64image = buffer.toString('base64');
+                    restActions.registerEmoji({
+                        name: emojiName.split('"').join('').split(':').join(''),
+                        image: `data:${o.mime};base64,${base64image}`,
+                        channelId: data.channel_id,
+                        guildId: data.guild_id,
+                        messageId: data.id,
+                        callback: (data, options) => {
+                            if (data.id != null) {
+                                restActions.deleteMessage(options.channelId, options.messageId);
+                                restActions.sendMessage({
+                                    channelId: options.channelId,
+                                    message: `Emoji added <:${data.name}:${data.id}>`
+                                })
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        //#endregion websocket complex processes
+
+        restActions.getImage(imageData.url, (buffer) => {
+            if (Buffer.byteLength(buffer) > maxImageSize) {
+                imageTooHuge(data);
+            }
+            mainEmojiProcessor(buffer);
+        })
+    }
+
     return messageLog;
 }
 
