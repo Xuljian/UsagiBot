@@ -1,7 +1,5 @@
-var mainProcess = require('./websocket-actions').mainProcess;
-const restActions = require('./rest-actions');
-const readline = require('readline');
-const { realTimeRepository } = require('./temp-repository');
+var mainProcess = require('./Usagi/websocket-actions').mainProcess;
+const { realTimeRepository } = require('./Usagi/temp-repository');
 const { clearInterval } = require('timers');
 
 const { app, BrowserWindow } = require('electron')

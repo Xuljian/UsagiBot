@@ -1,0 +1,3 @@
+[submodule "Usagi"]
+	path = Usagi
+	url = git@github.com:Xuljian/Usagi.git

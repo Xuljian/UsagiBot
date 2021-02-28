@@ -1,4 +1,5 @@
 const { ipcMain } = require("electron");
+const { realTimeRepository } = require('./Usagi/temp-repository');
 
 var mainWindow = null;
 var repoWindow = null;
