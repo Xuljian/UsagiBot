@@ -8,6 +8,7 @@ var isReady = false;
 var isRepoReady = false;
 
 var messages = [];
+const restActions = require('./Usagi/rest-actions');
 
 exports.isReady = function() {
     return isReady && isRepoReady;

@@ -39,11 +39,12 @@ function assignClickListener(element, data) {
 window.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('log', (event, msg) => {
         let messageLogElement = document.querySelector('div[message-log]');
-        if (int == 100) {
+        if (int >= 100) {
             messageLogElement.removeChild(messageLogElement.children[0]);
         }
 
         let container = document.createElement('div');
+        container.setAttribute('counter', int);
         if (!msg.isMe) {
             container.setAttribute('message-container', '');
         } else {
