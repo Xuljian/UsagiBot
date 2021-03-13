@@ -10,9 +10,11 @@
         "start": "electron ."
     },
     "dependencies": {
+        "cron-parser": "^3.3.0",
         "file-type": "^16.2.0",
         "form-data": "^3.0.0",
         "fs": "0.0.1-security",
+        "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
         "sharp": "^0.27.1",
         "ws": "^7.4.2",

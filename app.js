@@ -1,11 +1,12 @@
 var mainProcess = require('./Usagi/websocket-actions').mainProcess;
-const { realTimeRepository } = require('./Usagi/temp-repository');
+const { realTimeRepository, onclose, getEsentialData } = require('./Usagi/temp-repository');
 const { clearInterval } = require('timers');
 
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
 const communicator = require('./pipeline')
+const cronJob = require('./Usagi/cron-job');
 
 var messageLog = null;
 
@@ -30,7 +31,7 @@ var startLogging = function() {
         }
     }, 500)
     setInterval(() => {
-        communicator.sendRepoToRenderer(realTimeRepository);
+        communicator.sendRepoToRenderer(getEsentialData());
     }, 10000)
 }
 
@@ -104,8 +105,11 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
-        app.quit();
-        process.exit();
+        cronJob.haltCron();
+        onclose(true, () => {
+            app.quit();
+            process.exit();
+        });
     }
 })
 
