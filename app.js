@@ -78,6 +78,8 @@ function createRepository() {
     // repositoryWindow.webContents.openDevTools();
 }
 
+require('./Usagi/process-output-file').processOutput();
+
 app.whenReady().then(() => {
     createWindow();
     createRepository();

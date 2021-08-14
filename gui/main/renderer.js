@@ -130,13 +130,24 @@ function eventBinding() {
     messageLogElement.addEventListener('message-click', handleClick);
     let executeButton = document.getElementById("execute");
 
-    let messageId = document.querySelector('div[message-id]');
-    messageId.parentElement.addEventListener('click', () => {
+    let messageIdContainer = document.querySelector('div[message-id-container]');
+    messageIdContainer.addEventListener('click', () => {
+        if (currentData.messageReference != null) {
+            delete currentData.messageReference;
+            let info = document.querySelector('div[info]');
+            info.classList.add('hide');
+            info.innerText = '';
+            return;
+        }
+
         let userIdEl = document.querySelector('div[user-id]');
         let id = userIdEl.innerText;
         if (id == null || id.trim() === '' || id.trim() === '-') {
             return;
         }
+        let info = document.querySelector('div[info]');
+        info.classList.remove('hide');
+        info.innerText = `Replying to ${currentData.username} for message ${currentData.messageId}`; 
         if (currentData != null) {
             currentData.messageReference = {
                 guild_id: currentData.guildId,

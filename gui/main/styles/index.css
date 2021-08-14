@@ -17,6 +17,14 @@ div[message-container-me] {
     justify-content: flex-end;
 }
 
+div[message-id-container] {
+    cursor: pointer
+}
+
+div[info] {
+    color: white;
+}
+
 div[message] {
     box-shadow: 2px 2px 3px white;
     border: 1px #aaaaaa;
@@ -88,6 +96,10 @@ img {
 .tiny {
     font-size: 10px;
     font-style: italic;
+}
+
+.hide {
+    display: none;
 }
 
 .admin-input {
