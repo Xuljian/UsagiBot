@@ -1,5 +1,5 @@
 var mainProcess = require('./Usagi/websocket-actions').mainProcess;
-const { realTimeRepository, onclose, getEsentialData } = require('./Usagi/temp-repository');
+const { realTimeRepository, onClose, getEsentialData } = require('./Usagi/temp-repository');
 const { clearInterval } = require('timers');
 
 const { app, BrowserWindow } = require('electron')
@@ -87,26 +87,26 @@ app.whenReady().then(() => {
         try {
             if (realTimeRepository.fileInit && communicator.isReady()) {
                 start();
-    
+
                 clearInterval(timeOut);
             }
         } catch (e) {
             console.log(e)
         }
     }, 500)
+})
 
-    app.on('activate', function () {
-        if (BrowserWindow.getAllWindows().length === 0){
-            createWindow()
-            createRepository();
-        }
-    })
+app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0){
+        createWindow()
+        createRepository();
+    }
 })
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         cronJob.haltCron();
-        onclose(true, () => {
+        onClose(true, () => {
             app.quit();
             process.exit();
         });
