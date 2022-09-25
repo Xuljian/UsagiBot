@@ -10,6 +10,7 @@
         "start": "electron ."
     },
     "dependencies": {
+        "async-mutex": "^0.4.0",
         "cron-parser": "^4.6.0",
         "file-type": "16.5.4",
         "form-data": "^4.0.0",

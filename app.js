@@ -31,7 +31,7 @@ var startLogging = function() {
             communicator.sendLogToRenderer(message);
         }
     }, 500)
-    timeoutChainer(() => {
+    setInterval(() => {
         communicator.sendRepoToRenderer(getEsentialData());
     }, 10000)
 }
