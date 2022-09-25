@@ -7,6 +7,7 @@ const path = require('path')
 
 const communicator = require('./pipeline')
 const cronJob = require('./Usagi/cron-job');
+const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 
 var messageLog = null;
 
@@ -24,13 +25,13 @@ var start = function () {
 }
 
 var startLogging = function() {
-    setInterval(() => {
+    timeoutChainer(() => {
         let message = messageLog.shift();
         if (message != null) {
             communicator.sendLogToRenderer(message);
         }
     }, 500)
-    setInterval(() => {
+    timeoutChainer(() => {
         communicator.sendRepoToRenderer(getEsentialData());
     }, 10000)
 }
@@ -83,12 +84,12 @@ app.whenReady().then(() => {
     createRepository();
     communicator.registerMainWindow('main', mainWindow);
     communicator.registerMainWindow('repo', repositoryWindow);
-    let timeOut = setInterval(() => {
+    let timeout = timeoutChainer(() => {
         try {
             if (realTimeRepository.fileInit && communicator.isReady()) {
                 start();
 
-                clearInterval(timeOut);
+                timeout.stop = true;
             }
         } catch (e) {
             console.log(e)
