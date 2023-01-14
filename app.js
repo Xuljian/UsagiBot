@@ -112,7 +112,7 @@ app.on('window-all-closed', function () {
         end();
         endPSO2();
         endRest();
-        onClose(true, true, () => {
+        onClose(false, true, () => {
             app.quit();
             process.exit(0);
         });
