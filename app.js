@@ -1,12 +1,11 @@
 var mainProcess = require('./Usagi/websocket-actions').mainProcess;
 const { realTimeRepository, onClose, getEsentialData } = require('./Usagi/temp-repository');
-const { clearInterval } = require('timers');
 
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
 const communicator = require('./pipeline')
-const cronJob = require('./Usagi/cron-job');
+const cronJob = require('./Usagi/utils/cron-job');
 const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 
 var messageLog = null;
