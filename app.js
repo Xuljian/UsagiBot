@@ -11,17 +11,22 @@ const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
 const { endRest } = require('./Usagi/rest-actions');
 
+const { log } = require('./Usagi/utils/logger');
+
 var messageLog = null;
 
 var mainWindow = null;
 var repositoryWindow = null;
+
+app.disableHardwareAcceleration();
 
 var start = function () {
     try {
         messageLog = mainProcess();
         startLogging();
     } catch (exception) {
-        console.log(exception);
+        log(exception);
+        end();
         start();
     }
 }
@@ -39,9 +44,9 @@ var startLogging = function() {
 }
 
 function UncaughtExceptionHandler(err) {
-    console.log("Uncaught Exception Encountered!!");
-    console.log("err: ", err);
-    console.log("Stack trace: ", err.stack);
+    log("Uncaught Exception Encountered!!");
+    log("err: ", err);
+    log("Stack trace: ", err.stack);
     setInterval(function () { }, 5000000);
 }
 
@@ -94,7 +99,7 @@ app.whenReady().then(() => {
                 timeout.stop = true;
             }
         } catch (e) {
-            console.log(e)
+            log(e)
         }
     }, 500)
 })
@@ -114,7 +119,6 @@ app.on('window-all-closed', function () {
         endRest();
         onClose(false, true, () => {
             app.quit();
-            process.exit(0);
         });
     }
 })
