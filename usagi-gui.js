@@ -1,5 +1,5 @@
 var { mainProcess, end } = require('./Usagi/websocket-actions');
-const { realTimeRepository, onClose, getEsentialData } = require('./Usagi/temp-repository');
+const { realTimeRepository, onClose, getEsentialData } = require('./Usagi/repository');
 
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
@@ -8,10 +8,13 @@ const communicator = require('./pipeline')
 const cronJob = require('./Usagi/utils/cron-job');
 const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 
-const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
+//const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
 const { endRest } = require('./Usagi/rest-actions');
 
+const fs = require('fs').promises;
+
 const { log } = require('./Usagi/utils/logger');
+const { USAGI_CONSTANTS } = require('./Usagi/usagi.constants');
 
 var messageLog = null;
 
@@ -42,14 +45,6 @@ var startLogging = function() {
         communicator.sendRepoToRenderer(getEsentialData());
     }, 10000)
 }
-
-[`SIGQUIT`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
-    let defaultFunction = () => {
-        mainWindow.close();
-        repositoryWindow.close();
-    };
-    process.on(eventType, defaultFunction);
-})
 
 function UncaughtExceptionHandler(err) {
     log("Uncaught Exception Encountered!!");
@@ -99,6 +94,29 @@ app.whenReady().then(() => {
     createRepository();
     communicator.registerMainWindow('main', mainWindow);
     communicator.registerMainWindow('repo', repositoryWindow);
+
+    let killer = timeoutChainer(async () => {
+        let filepath = USAGI_CONSTANTS.BOT_DUMP_PATH + "\\end";
+        try {
+            await fs.access(filepath);
+        } catch (ex) {
+            return;
+        }
+
+        try {
+            await fs.rm(filepath);
+        } catch (ex) {
+            log("Fail to remove file");
+            log(ex);
+            return;
+        }
+
+        // Time to end the program.
+        mainWindow.close();
+        repositoryWindow.close();
+        killer.stop = true;
+    })
+
     let timeout = timeoutChainer(() => {
         try {
             if (realTimeRepository.fileInit && communicator.isReady()) {
@@ -110,7 +128,7 @@ app.whenReady().then(() => {
             log(e)
         }
     }, 500)
-})
+});
 
 app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0){
@@ -120,10 +138,11 @@ app.on('activate', function () {
 })
 
 app.on('window-all-closed', function () {
+    console.log("window-all-closed executed");
     if (process.platform !== 'darwin') {
         cronJob.haltCron();
         end();
-        endPSO2();
+        //endPSO2();
         endRest();
         onClose(false, true, () => {
             app.quit();
