@@ -8,7 +8,7 @@ const communicator = require('./pipeline')
 const cronJob = require('./Usagi/utils/cron-job');
 const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 
-//const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
+const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
 const { endRest } = require('./Usagi/rest-actions');
 
 const fs = require('fs').promises;
@@ -115,7 +115,7 @@ app.whenReady().then(() => {
         mainWindow.close();
         repositoryWindow.close();
         killer.stop = true;
-    })
+    }, 1000)
 
     let timeout = timeoutChainer(() => {
         try {
@@ -142,7 +142,7 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         cronJob.haltCron();
         end();
-        //endPSO2();
+        endPSO2();
         endRest();
         onClose(false, true, () => {
             app.quit();
