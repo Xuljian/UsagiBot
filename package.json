@@ -2,7 +2,7 @@
     "name": "usagi-bot",
     "version": "0.0.0",
     "description": "UsagiBot",
-    "main": "app.js",
+    "main": "usagi-gui.js",
     "author": {
         "name": "Xuljian"
     },
