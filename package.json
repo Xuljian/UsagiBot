@@ -10,12 +10,11 @@
         "start": "electron ."
     },
     "dependencies": {
-      "util.promisify": "^1.1.1",
-      "fs": "0.0.1-security",
-      "usagi-bot": "file:Usagi"
+        "util.promisify": "^1.1.1",
+        "fs": "0.0.1-security",
+        "usagi-bot": "file:Usagi"
     },
     "devDependencies": {
         "electron": "^22.0.2"
     }
-  }
-  
+}
