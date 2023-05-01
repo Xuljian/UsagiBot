@@ -1,29 +1,10 @@
 {
-    "name": "usagi-bot",
-    "version": "0.0.0",
-    "description": "UsagiBot",
-    "main": "usagi-gui.js",
-    "author": {
-        "name": "Xuljian"
-    },
-    "scripts": {
-        "start": "electron ."
-    },
-    "dependencies": {
-        "async-mutex": "^0.4.0",
-        "cron-parser": "^4.7.1",
-        "file-type": "16.5.4",
-        "form-data": "^4.0.0",
-        "fs": "0.0.1-security",
-        "moment": "^2.29.4",
-        "node-fetch": "2.6.7",
-        "selenium-webdriver": "^4.9.0",
-        "sharp": "^0.31.3",
-        "util.promisify": "^1.1.1",
-        "ws": "^8.12.0",
-        "zlib": "^1.0.5"
-    },
-    "devDependencies": {
-        "electron": "^22.0.2"
-    }
+  "dependencies": {
+    "util.promisify": "^1.1.1",
+    "fs": "0.0.1-security",
+    "usagi-bot": "file:Usagi"
+  },
+  "devDependencies": {
+      "electron": "^22.0.2"
+  }
 }
