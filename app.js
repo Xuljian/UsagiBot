@@ -9,7 +9,7 @@ const logger = require('./Usagi/utils/logger');
 const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 const { USAGI_CONSTANTS } = require('./Usagi/usagi.constants');
 const { sleeper } = require('./Usagi/utils/sleeper');
-const { realTimeRepository } = require('./Usagi/repository');
+const { realTimeRepository } = require('./Usagi/repository-lite');
 
 let interval = () => {
     return realTimeRepository.fileInit && realTimeRepository.debug ? 5000 : 1800000;
