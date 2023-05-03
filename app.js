@@ -9,10 +9,22 @@ const logger = require('./Usagi/utils/logger');
 const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 const { USAGI_CONSTANTS } = require('./Usagi/usagi.constants');
 const { sleeper } = require('./Usagi/utils/sleeper');
+const { realTimeRepository } = require('./Usagi/repository');
 
-let usagiProcess = null;
+let interval = () => {
+    return realTimeRepository.fileInit && realTimeRepository.debug ? 5000 : 1800000;
+}
+
 let usagi = function() {
     usagiProcess = executor.spawn("usagi.bat", { detached: true });
+}
+
+// To display information
+let information = function() {
+    console.log("Put a file named 'end' in the BOT_DUMP_PATH to end this process");
+    console.log("Put a file named 'debug' in BOT_DUMP_PATH to enable debug.\n" +
+                "Debug mode sets the update checker interval to 5 seconds.\n" + 
+                "Debug mode pretty prints the repository JSON.")
 }
 
 let killUsagi = async function() {
@@ -35,6 +47,7 @@ let killUsagi = async function() {
 }
 
 let updateChecker = async function() {
+    logger.log("Checking for updates");
     let res = null;
     try {
         res =  await executor.exec(`${__dirname}\\update-checker.bat`);
@@ -55,7 +68,9 @@ let updateChecker = async function() {
         }
         usagi();
     }
+    logger.log("Finish checking for updates");
 }
 
+information();
 usagi();
-timeoutChainer(updateChecker, 1800000);
+timeoutChainer(updateChecker, interval);
