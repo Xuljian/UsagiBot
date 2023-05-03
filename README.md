@@ -14,3 +14,7 @@ npm install -g electron
 npm install <-- In the root folder of this repo
 execute usagi-starter.bat
 ```
+If you do not need the updater running
+```
+execute usagi.bat
+```
