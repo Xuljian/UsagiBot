@@ -12,7 +12,6 @@ const { sleeper } = require('./Usagi/utils/sleeper');
 const { realTimeRepository } = require('./Usagi/repository-lite');
 
 let interval = () => {
-    console.log(realTimeRepository.debug)
     return realTimeRepository.debug ? 5000 : 1800000;
 }
 
@@ -77,10 +76,10 @@ let updateChecker = async function() {
 }
 
 information();
-//usagi();
+usagi();
 let outer = timeoutChainer(() => {
     if (realTimeRepository.fileInit) {
-        outer.stop = true;
         timeoutChainer(updateChecker, interval, true);
+        outer.stop = true;
     }
 }, 1000);
