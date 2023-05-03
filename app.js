@@ -37,6 +37,10 @@ let killUsagi = async function() {
         return;
     }
 
+    // give it some time for the end file to be picked up by the usagi bot
+    // search "killer" in usagi-gui.js for details
+    sleeper(5000);
+
     let res = await executor.exec("TASKLIST /v | find /i \"UsagiBot\"");
     res = res.stdout;
     while (res && res.indexOf('electron.exe') > 0) {
@@ -73,4 +77,4 @@ let updateChecker = async function() {
 
 information();
 usagi();
-timeoutChainer(updateChecker, interval);
+timeoutChainer(updateChecker, interval, true);
