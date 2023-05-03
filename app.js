@@ -60,7 +60,7 @@ let updateChecker = async function() {
     }
     res = res.stdout;
 
-    if (res) {
+    if (res.indexOf("git pull") > -1) {
         logger.log("There are updates");
         // there are updates
         await killUsagi();

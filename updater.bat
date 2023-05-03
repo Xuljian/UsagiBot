@@ -7,4 +7,3 @@ git pull
 echo Updating Usagi bot
 cd ..
 git pull
-npm install
