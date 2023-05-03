@@ -39,7 +39,10 @@ let killUsagi = async function() {
 
     // give it some time for the end file to be picked up by the usagi bot
     // search "killer" in usagi-gui.js for details
+    logger.log("Sleeping for 5 seconds");
     sleeper(5000);
+
+    logger.log("FIND AND KILL USAGI");
 
     let res = await executor.exec("TASKLIST /v | find /i \"UsagiBot\"");
     res = res.stdout;
