@@ -12,5 +12,5 @@ Download and install [NodeJS](https://nodejs.org/en/)
 ```
 npm install -g electron
 npm install <-- In the root folder of this repo
-electron .
+execute usagi-starter.bat
 ```
