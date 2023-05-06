@@ -1,4 +1,4 @@
-var { mainProcess, end } = require('./Usagi/websocket-actions');
+var { mainProcess, end: websocketEnd } = require('./Usagi/websocket-actions');
 const { realTimeRepository, onClose, getEsentialData } = require('./Usagi/repository');
 
 const { app, BrowserWindow } = require('electron')
@@ -10,6 +10,7 @@ const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 
 const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
 const { endRest } = require('./Usagi/rest-actions');
+const { end } = require('./Usagi/commands');
 
 const fs = require('fs').promises;
 
@@ -141,6 +142,7 @@ app.on('window-all-closed', function () {
     console.log("window-all-closed executed");
     if (process.platform !== 'darwin') {
         cronJob.haltCron();
+        websocketEnd();
         end();
         endPSO2();
         endRest();
