@@ -8,6 +8,8 @@ This repository uses electron for admin use, the GUI-less one is in another repo
 # Execution
 ## Prerequisite
 Download and install [NodeJS](https://nodejs.org/en/)  
+Download and chrome [ChromeWebdriver](https://chromedriver.storage.googleapis.com/index.html)  
+Extract and copy the path of the executable, paster it in the config file in usagi-constants.js
 ## Steps
 ```
 npm install -g electron
