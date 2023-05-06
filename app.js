@@ -41,16 +41,6 @@ let killUsagi = async function() {
     // search "killer" in usagi-gui.js for details
     logger.log("Sleeping for 5 seconds");
     await sleeper(5000);
-
-    logger.log("FIND AND KILL USAGI");
-
-    let res = await executor.exec("TASKLIST /v | find /i \"UsagiBot\"");
-    res = res.stdout;
-    while (res && res.indexOf('electron.exe') > 0) {
-        await sleeper(500);
-        res = await executor.exec("TASKLIST /v | find /i \"UsagiBot\"");
-        res = res.stdout;
-    }
 }
 
 let updateChecker = async function() {
