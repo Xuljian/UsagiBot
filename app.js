@@ -39,8 +39,23 @@ let killUsagi = async function() {
 
     // give it some time for the end file to be picked up by the usagi bot
     // search "killer" in usagi-gui.js for details
-    logger.log("Sleeping for 5 seconds");
-    await sleeper(5000);
+    logger.log("Loop sleeping till end file is consumed");
+
+    let endFileExists = true;
+    try {
+        await fs.access(filepath);
+    } catch {
+        endFileExists = false;
+    }
+    
+    while (endFileExists) {
+        await sleeper(5000);
+        try {
+            await fs.access(filepath);
+        } catch {
+            endFileExists = false;
+        }
+    }
 }
 
 let updateChecker = async function() {

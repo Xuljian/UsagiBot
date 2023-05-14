@@ -6,11 +6,11 @@ const path = require('path')
 
 const communicator = require('./pipeline')
 const cronJob = require('./Usagi/utils/cron-job');
-const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
+const { timeoutChainer, end: chainerEnder } = require('./Usagi/utils/timeout-chainer');
 
 const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
 const { endRest } = require('./Usagi/rest-actions');
-const { end } = require('./Usagi/commands');
+const { end: commandEnder } = require('./Usagi/commands');
 
 const fs = require('fs').promises;
 
@@ -104,14 +104,6 @@ app.whenReady().then(() => {
             return;
         }
 
-        try {
-            await fs.rm(filepath);
-        } catch (ex) {
-            log("Fail to remove file");
-            log(ex);
-            return;
-        }
-
         // Time to end the program.
         mainWindow.close();
         repositoryWindow.close();
@@ -143,12 +135,21 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         cronJob.haltCron();
         websocketEnd();
-        end();
         endPSO2();
         endRest();
-        onClose(false, true, () => {
-            app.quit();
-        });
+        chainerEnder().then(() => {
+            commandEnder();
+            onClose(false, true, () => {
+                let filepath = USAGI_CONSTANTS.BOT_DUMP_PATH + "\\end";
+                fs.rm(filepath).then(() => {
+                    app.quit();
+                }, (ex) => {
+                    log("Fail to remove file");
+                    log(ex);
+                    app.quit();
+                })
+            });
+        })
     }
 })
 
