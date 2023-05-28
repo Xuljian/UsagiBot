@@ -11,6 +11,8 @@ const { USAGI_CONSTANTS } = require('./Usagi/usagi.constants');
 const { sleeper } = require('./Usagi/utils/sleeper');
 const { realTimeRepository } = require('./Usagi/repository-lite');
 
+let firstTime = true;
+
 let interval = () => {
     return realTimeRepository.debug ? 5000 : 1800000;
 }
@@ -71,7 +73,9 @@ let updateChecker = async function() {
     if (res.indexOf("git pull") > -1) {
         logger.log("There are updates");
         // there are updates
-        await killUsagi();
+        if (!firstTime) {
+            await killUsagi();
+        }
 
         try {
             await executor.exec(`${__dirname}\\updater.bat`);
@@ -79,12 +83,20 @@ let updateChecker = async function() {
             logger.log(e);
         }
         usagi();
+    } else {
+        if (firstTime) {
+            usagi();
+        }
     }
+
+    if (firstTime) {
+        firstTime = false;
+    }
+
     logger.log("Finish checking for updates");
 }
 
 information();
-usagi();
 let outer = timeoutChainer(() => {
     if (realTimeRepository.fileInit) {
         timeoutChainer(updateChecker, interval, true);
