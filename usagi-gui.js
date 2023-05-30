@@ -21,6 +21,7 @@ var messageLog = null;
 
 var mainWindow = null;
 var repositoryWindow = null;
+let repo = null;
 
 app.disableHardwareAcceleration();
 
@@ -30,7 +31,7 @@ var start = function () {
         startLogging();
     } catch (exception) {
         log(exception);
-        end();
+        commandEnder();
         start();
     }
 }
@@ -42,7 +43,7 @@ var startLogging = function() {
             communicator.sendLogToRenderer(message);
         }
     }, 500)
-    setInterval(() => {
+    repo = setInterval(() => {
         communicator.sendRepoToRenderer(getEsentialData());
     }, 10000)
 }
@@ -133,6 +134,7 @@ app.on('activate', function () {
 app.on('window-all-closed', function () {
     console.log("window-all-closed executed");
     if (process.platform !== 'darwin') {
+        clearInterval(repo);
         cronJob.haltCron();
         websocketEnd();
         endPSO2();
