@@ -22,7 +22,6 @@ const { end: commandEnder } = require('./Usagi/commands');
 
 const fs = require('fs').promises;
 
-const { log } = require('./Usagi/utils/logger');
 const { USAGI_CONSTANTS } = require('./Usagi/usagi.constants');
 
 var messageLog = null;
