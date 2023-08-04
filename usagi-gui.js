@@ -6,16 +6,7 @@ const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
 const communicator = require('./pipeline')
-const cronJob = require('./Usagi/utils/cron-job');
 const { timeoutChainer, end: chainerEnder } = require('./Usagi/utils/timeout-chainer');
-
-let endPSO2 = null;
-
-try {
-    endPSO2 = require('./Usagi/utils/pso2/pso2-modules');
-} catch {
-    log("pso2 module failed to load");
-}
 
 const { endRest } = require('./Usagi/rest-actions');
 const { end: commandEnder } = require('./Usagi/commands');
@@ -142,9 +133,7 @@ app.on('window-all-closed', function () {
     console.log("window-all-closed executed");
     if (process.platform !== 'darwin') {
         clearInterval(repo);
-        cronJob.haltCron();
         websocketEnd();
-        endPSO2 && endPSO2();
         endRest();
         chainerEnder().then(() => {
             commandEnder();
